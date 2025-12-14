@@ -3,7 +3,7 @@
   hosts: localhost
   vars:
     vm_name: ansibleVm
-    vm_template: 「ubuntu-cloud-template-v2」 
+    vm_template: ubuntu-cloud-template-v2
     proxmox_node: int531-04 
     proxmox_api_host: 10.13.104.214 
     proxmox_api_user: root@pam
@@ -84,14 +84,17 @@
         node: "{{ proxmox_node }}"
         state: started
 
-    - name: Wait 5 minutes for VM to finish first-boot tasks
-      ansible.builtin.pause:
-        minutes: 5
+    - name: Wait for VM to finish first-boot tasks
+      ansible.builtin.wait_for_connection:
 
     - name: Wait for VM to be reachable via SSH
       ansible.builtin.wait_for_connection:
         delay: 10
         timeout: 300
+      vars:
+        ansible_user: ansible
+        ansible_ssh_private_key_file: ./privatekey
+        ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
       delegate_to: "{{ vm_target_ip }}"
 
 - name: Configure the new VM hostname
