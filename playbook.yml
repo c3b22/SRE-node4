@@ -84,9 +84,6 @@
         node: "{{ proxmox_node }}"
         state: started
 
-    - name: Wait for VM to finish first-boot tasks
-      ansible.builtin.wait_for_connection:
-
     - name: Wait for VM to be reachable via SSH
       ansible.builtin.wait_for_connection:
         delay: 10
@@ -121,6 +118,13 @@
       apt:
         name: docker-compose-v2
         state: present
+
+    - name: Install git
+      become: true
+      apt:
+        name: git
+        state: present
+        update_cache: yes
 
     - name: Make sure a service unit is running
       ansible.builtin.systemd_service:
