@@ -32,7 +32,7 @@
       become: true
       git:
         repo: https://github.com/GkG0139/int531-monitoring-tools.git
-        dest: /home/ansible
+        dest: /home/ansible/int531-monitoring-tools
         version: main
         update: yes
 
