@@ -94,9 +94,9 @@
         ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
       delegate_to: "{{ vm_target_ip }}"
 
-    - name: Set up virtual machine
-      hosts: monitoring
-      become: true
-      roles:
-        - common
-        - monitor
+- name: Configure VM with Ansible roles
+  hosts: monitoring
+  become: true
+  roles:
+    - common
+    - monitor
