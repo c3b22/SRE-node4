@@ -95,6 +95,8 @@
       delegate_to: "{{ vm_target_ip }}"
 
     - name: Set up virtual machine
-      hosts: servers
+      hosts: monitoring
+      become: true
       roles:
         - common
+        - monitor
