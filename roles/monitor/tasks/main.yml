@@ -79,14 +79,6 @@
     name: int531-monitoring-tools_app-network
     state: present
 
-- name: Clone monitoring tools repository
-  become: true
-  git:
-    repo: https://github.com/GkG0139/int531-monitoring-tools.git
-    dest: /home/ansible/int531-monitoring-tools
-    version: fixBugInPort
-    update: yes
-
 - name: Docker compose up monitoring stack
   community.docker.docker_compose_v2:
     project_src: /home/ansible/int531-monitoring-tools

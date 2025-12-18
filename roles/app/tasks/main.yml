@@ -4,10 +4,8 @@
 
 
   vars:
-  app_dir: /home/ansible/myapp
-  repo_url: https://github.com/USERNAME/REPO.git
+  app_dir: /home/ansible/int531-monitoring-tools
   repo_branch: main
-
 
   tasks:
     - name: Install required packages
@@ -21,43 +19,7 @@
       state: present
       update_cache: yes
 
-
-    - name: Install Docker
-      shell: |
-      curl -fsSL https://get.docker.com | sh
-      args:
-      creates: /usr/bin/docker
-
-
-    - name: Enable and start Docker
-      systemd:
-      name: docker
-      enabled: yes
-      state: started
-
-
-    - name: Install Docker Compose plugin
-      apt:
-      name: docker-compose-plugin
-      state: present
-
-
-    - name: Create application directory
-      file:
-      path: "{{ app_dir }}"
-      state: directory
-      mode: '0755'
-
-
-    - name: Clone GitHub repository
-      git:
-      repo: "{{ repo_url }}"
-      dest: "{{ app_dir }}"
-      version: "{{ repo_branch }}"
-      force: yes
-
-
     - name: Docker compose up
-      shell: docker compose up -d
+      shell: docker compose -f docker-compose.yml up -d
       args:
       chdir: "{{ app_dir }}"
