@@ -90,6 +90,6 @@
   community.docker.docker_compose_v2:
     project_src: /home/ansible/int531-monitoring-tools
     files:
-      - services.compose.yml
+      - services2.compose.yml
       - monitoring.compose.yml
     state: present
