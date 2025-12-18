@@ -1,4 +1,4 @@
 - name: Docker compose up web app
   shell: docker compose -f docker-compose.yml up -d
   args:
-    chdir: "{{ app_dir }}"
+    chdir: /home/ansible/int531-monitoring-tools
