@@ -2,6 +2,15 @@
   apt:
     update_cache: yes
 
+- name: Wait for apt lock to be released
+  become: true
+  shell: |
+    while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
+      sleep 5
+    done
+  args:
+    executable: /bin/bash
+
 - name: Install Docker Engine (apt version)
   apt:
     name: docker.io
