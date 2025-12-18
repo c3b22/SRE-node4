@@ -105,3 +105,4 @@
   roles:
     - common
     - monitor
+    - app
