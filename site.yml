@@ -38,15 +38,18 @@
       pause:
         seconds: 30
 
-    - name: Get VM info
-      community.proxmox.proxmox_kvm:
+    - name: Get VM info with guest agent
+      community.proxmox.proxmox_vm_info:
         api_user: "{{ proxmox_api_user }}"
         api_password: "{{ proxmox_api_password }}"
         api_host: "{{ proxmox_api_host }}"
         node: "{{ proxmox_node }}"
         vmid: "{{ vm_create.vmid }}"
-        state: current
       register: vm_info
+
+    - name: Debug vm_info
+      debug:
+        var: vm_info
 
     - name: Set VM IP fact
       set_fact:
