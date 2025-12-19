@@ -38,22 +38,33 @@
       pause:
         seconds: 30
 
-    - name: Get VM info with guest agent
-      community.proxmox.proxmox_vm_info:
+    - name: Get VM IP from QEMU Guest Agent
+      community.proxmox.proxmox_kvm:
         api_user: "{{ proxmox_api_user }}"
         api_password: "{{ proxmox_api_password }}"
         api_host: "{{ proxmox_api_host }}"
         node: "{{ proxmox_node }}"
         vmid: "{{ vm_create.vmid }}"
-      register: vm_info
+        state: agent
+      register: vm_agent
 
-    - name: Debug vm_info
-      debug:
-        var: vm_info
+- name: Debug vm_agent
+  debug:
+    var: vm_agent
 
-    - name: Set VM IP fact
-      set_fact:
-        vm_ip: "{{ vm_info.proxmox_agent_interfaces[0]['ip-addresses'][0]['ip-address'] }}"
+- name: Set VM IP fact
+  set_fact:
+    vm_ip: >-
+      {{
+        vm_agent.proxmox_agent_interfaces
+        | selectattr('ip-addresses', 'defined')
+        | map(attribute='ip-addresses')
+        | flatten
+        | selectattr('ip-address-type', 'equalto', 'ipv4')
+        | rejectattr('ip-address', 'search', '^127\\.')
+        | map(attribute='ip-address')
+        | first
+      }}
 
 - name: Configure VM with Ansible roles
   hosts: localhost
