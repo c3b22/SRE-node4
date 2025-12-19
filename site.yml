@@ -34,20 +34,20 @@
         state: started
 
     - name: Wait for VM to get IP
-      community.proxmox.proxmox_kvm:
-        api_user: "{{ proxmox_api_user }}"
-        api_password: "{{ proxmox_api_password }}"
-        api_host: "{{ proxmox_api_host }}"
-        vmid: "{{ vm_create.vmid }}"
-        state: current
-      register: vm_status
-      until: hostvars['localhost']['proxmox_agent_interfaces'] | length > 0 and hostvars['localhost']['proxmox_agent_interfaces'][0]['ip-addresses'] | length > 0
+      uri:
+        url: "https://{{ proxmox_api_host }}:8006/api2/json/nodes/{{ proxmox_node }}/qemu/{{ vm_create.vmid }}/agent/network-get-interfaces"
+        user: "{{ proxmox_api_user }}"
+        password: "{{ proxmox_api_password }}"
+        validate_certs: false
+        force_basic_auth: true
+      register: agent_info
+      until: agent_info.json.result | selectattr('name', 'equalto', 'eth0') | map(attribute='ip-addresses') | flatten | selectattr('type', 'equalto', 'ipv4') | map(attribute='ip-address') | length > 0
       retries: 30
       delay: 10
 
     - name: Set VM IP fact
       set_fact:
-        vm_ip: "{{ hostvars['localhost']['proxmox_agent_interfaces'][0]['ip-addresses'][0] }}"
+        vm_ip: "{{ (agent_info.json.result | selectattr('name', 'equalto', 'eth0') | map(attribute='ip-addresses') | flatten | selectattr('type', 'equalto', 'ipv4') | map(attribute='ip-address') | first) }}"
 
 - name: Configure VM with Ansible roles
   hosts: localhost
