@@ -40,12 +40,6 @@
     state: present
     update_cache: yes
 
-- name: Add 10.13.104.61 to known_hosts
-  known_hosts:
-    name: "10.13.104.61"
-    key: "{{ lookup('pipe', 'ssh-keyscan -H 10.13.104.61') }}"
-    path: "/root/.ssh/known_hosts"
-
 - name: Clone monitoring tools repository
   become: true
   git:
