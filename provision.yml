@@ -19,7 +19,7 @@
         name: "ansibleVm-{{ vm_create.vmid | default('NEW') }}"
         ciuser: sysadmin
         cipassword: "int53104"
-        sshkeys: "{{ lookup('file', '~/.ssh/ansible.pub') }}"
+        sshkeys: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDGGnWuPgAVFpdmoSVXLev7k0gMDadt1+x36kwmokhwi root@int531-04"
         ipconfig:
           ipconfig0: "ip=dhcp"
         agent: 1
