@@ -40,6 +40,10 @@
       delay: 15
       until: vm_network.stdout != ""
       ignore_errors: yes
+      
+    - name: Show raw guest agent output
+      debug:
+        var: vm_network.stdout
 
     - name: Parse VM IP from JSON
       set_fact:
