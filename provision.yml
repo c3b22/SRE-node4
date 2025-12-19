@@ -19,6 +19,7 @@
         name: "{{ vm_name }}"
         ciuser: ansible
         cipassword: int53104
+        sshkeys: "{{ lookup('file', '~/.ssh/ansible.pub') }}"
         ipconfig:
           ipconfig0: "ip=dhcp"
         agent: 1
