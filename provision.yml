@@ -18,7 +18,7 @@
         clone: "ubuntu-cloud-template-v3"
         name: "ansibleVm-{{ vm_create.vmid | default('NEW') }}"
         ciuser: ansible
-        cipassword: ""        
+        cipassword: ""
         sshkeys: "{{ lookup('file', '~/.ssh/ansible.pub') }}"
         ipconfig:
           ipconfig0: "ip=dhcp"
@@ -91,7 +91,7 @@
       wait_for_connection:
         delay: 10
         timeout: 300
-      delegate_to: "{{ vm_ip | trim}}"
+      delegate_to: "{{ vm_ip | trim }}"
 
     - name: Add host to inventory
       add_host:
