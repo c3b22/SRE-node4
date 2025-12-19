@@ -43,7 +43,6 @@
         cipassword: int53104
         ipconfig:
           ipconfig0: "ip=dhcp"
-        update: true
 
     - name: Start VM
       community.proxmox.proxmox_kvm:
