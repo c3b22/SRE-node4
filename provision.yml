@@ -69,9 +69,12 @@
         msg: "Cannot determine VM IP via guest agent, set static IP or check qemu-guest-agent"
       when: vm_ip == ""
 
-    - name: Wait VM boot
-      pause:
-        seconds: 180
+    - name: Wait for SSH port 22 to be open
+      ansible.builtin.wait_for:
+        host: "{{ vm_ip }}"
+        port: 22
+        state: started
+        timeout: 600
 
     - name: Ensure sysadmin user exists
       ansible.builtin.user:
