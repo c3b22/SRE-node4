@@ -1,5 +1,5 @@
-- name: Configure VM
-  hosts: proxmox_all_running
+- name: Configure only newly created VM
+  hosts: newly_created
   remote_user: ansible
   become: true
   tasks:
