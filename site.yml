@@ -1,19 +1,15 @@
-
 - name: Set up virtual machine on Proxmox
   hosts: localhost
+  connection: local
   vars:
     vm_name: ansibleVm
     vm_template: ubuntu-cloud-template-v2
-    proxmox_node: int531-04 
-    proxmox_api_host: 10.13.104.214 
+    proxmox_node: int531-04
+    proxmox_api_host: 10.13.104.214
     proxmox_api_user: root@pam
-    proxmox_api_password: int53104 
-    proxmox_storage: local-lvm
+    proxmox_api_password: int53104
 
   tasks:
-    - name: Ping my hosts
-      ansible.builtin.ping:
-
     - name: Get VM current state
       community.proxmox.proxmox_kvm:
         api_user: "{{ proxmox_api_user }}"
@@ -25,18 +21,7 @@
       register: vm_info
       ignore_errors: true
 
-    - name: Stop the VM if running
-      community.proxmox.proxmox_kvm:
-        api_user: "{{ proxmox_api_user }}"
-        api_password: "{{ proxmox_api_password }}"
-        api_host: "{{ proxmox_api_host }}"
-        name: "{{ vm_name }}"
-        node: "{{ proxmox_node }}"
-        state: stopped
-        force: true
-      when: vm_info.vmid is defined and vm_info.status ==  'running'
-
-    - name: Remove VM
+    - name: Remove VM if exists
       community.proxmox.proxmox_kvm:
         api_user: "{{ proxmox_api_user }}"
         api_password: "{{ proxmox_api_password }}"
@@ -46,7 +31,7 @@
         state: absent
       when: vm_info.vmid is defined
 
-    - name: Create VM
+    - name: Create VM from template (Cloud-Init + DHCP)
       community.proxmox.proxmox_kvm:
         api_user: "{{ proxmox_api_user }}"
         api_password: "{{ proxmox_api_password }}"
@@ -54,51 +39,21 @@
         clone: "{{ vm_template }}"
         name: "{{ vm_name }}"
         node: "{{ proxmox_node }}"
-        storage: local-lvm
-        format: qcow2
-        timeout: 100
-      register: new_vm
-
-    - name: Update VM
-      community.proxmox.proxmox_kvm:
-        api_user: "{{ proxmox_api_user }}"
-        api_password: "{{ proxmox_api_password }}"
-        api_host: "{{ proxmox_api_host }}"
-        node: "{{ proxmox_node }}"
-        name: "{{ vm_name }}"
-        ciuser: ansible 
-        cipassword: int53104 
-        sshkeys: 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIi6WnsbU+MM356oCy6Gz9KD5BW8gnhowhFuhAhpX4sC sysadmin@10.13.104.224
-'
+        ciuser: ansible
+        cipassword: int53104
+        sshkeys: "{{ lookup('file', '~/.ssh/id_ed25519.pub') }}"
         ipconfig:
-          ipconfig0: 'ip=dhcp,gw=10.13.104.254'
-        update: yes
+          ipconfig0: "ip=dhcp"
+        update: true
 
     - name: Start VM
       community.proxmox.proxmox_kvm:
         api_user: "{{ proxmox_api_user }}"
         api_password: "{{ proxmox_api_password }}"
         api_host: "{{ proxmox_api_host }}"
-        vmid: "{{ new_vm.vmid }}"
+        name: "{{ vm_name }}"
         node: "{{ proxmox_node }}"
         state: started
-
-    - name: Get VM IP
-      community.proxmox.proxmox_kvm:
-        api_user: "{{ proxmox_api_user }}"
-        api_password: "{{ proxmox_api_password }}"
-        api_host: "{{ proxmox_api_host }}"
-        node: "{{ proxmox_node }}"
-        name: "{{ vm_name }}"
-        state: current
-      register: vm_info
-
-    - name: Remove old SSH host key
-      ansible.builtin.known_hosts:
-        name: "{{ vm_info }}"
-        state: absent
-
-
 - name: Configure VM with Ansible roles
   hosts: proxmox_all_running
   become: true
