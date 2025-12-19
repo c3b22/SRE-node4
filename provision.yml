@@ -69,10 +69,18 @@
         msg: "Cannot determine VM IP via guest agent, set static IP or check qemu-guest-agent"
       when: vm_ip == ""
 
-    - name: Wait for SSH to become available 
-      wait_for_connection: 
-        timeout: 300 
-        delegate_to: "{{ vm_ip | trim }}"
+    - name: Add host to inventory
+      add_host:
+        name: "{{ vm_ip | trim }}"
+        ansible_host: "{{ vm_ip | trim}}"
+        ansible_user: sysadmin
+        ansible_ssh_private_key_file: /root/.ssh/ansible
+        groups: newly_created
+
+    - name: Wait for SSH to become available
+      wait_for_connection:
+        timeout: 300
+      hosts: newly_created
 
     - name: Ensure sysadmin user exists
       ansible.builtin.user:
@@ -164,11 +172,3 @@
         state: restarted
       become: true
       delegate_to: "{{ vm_ip | trim }}"
-
-    - name: Add host to inventory
-      add_host:
-        name: "{{ vm_ip | trim }}"
-        ansible_host: "{{ vm_ip | trim}}"
-        ansible_user: sysadmin
-        ansible_ssh_private_key_file: /root/.ssh/ansible
-        groups: newly_created
