@@ -10,27 +10,6 @@
     proxmox_api_password: int53104
 
   tasks:
-    - name: Get VM current state
-      community.proxmox.proxmox_kvm:
-        api_user: "{{ proxmox_api_user }}"
-        api_password: "{{ proxmox_api_password }}"
-        api_host: "{{ proxmox_api_host }}"
-        name: "{{ vm_name }}"
-        node: "{{ proxmox_node }}"
-        state: current
-      register: vm_info
-      ignore_errors: true
-
-    - name: Remove VM if exists
-      community.proxmox.proxmox_kvm:
-        api_user: "{{ proxmox_api_user }}"
-        api_password: "{{ proxmox_api_password }}"
-        api_host: "{{ proxmox_api_host }}"
-        name: "{{ vm_name }}"
-        node: "{{ proxmox_node }}"
-        state: absent
-      when: vm_info.vmid is defined
-
     - name: Create VM from template (Cloud-Init + DHCP)
       community.proxmox.proxmox_kvm:
         api_user: "{{ proxmox_api_user }}"
