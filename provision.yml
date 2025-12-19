@@ -34,16 +34,32 @@
         vmid: "{{ vm_create.vmid }}"
         state: started
 
-    - name: Wait for SSH to become available
-      wait_for_connection:
-        timeout: 300
-        sleep: 10
-      delegate_to: "{{ vm_name }}"
+    - name: Wait for VM guest agent to be ready
+      community.proxmox.proxmox_kvm:
+        api_user: "{{ proxmox_api_user }}"
+        api_password: "{{ proxmox_api_password }}"
+        api_host: "{{ proxmox_api_host }}"
+        vmid: "{{ vm_create.vmid }}"
+        state: info
+      register: vm_info
+      retries: 20
+      delay: 15
+      until: vm_info.data is defined and vm_info.data.ips is defined
+      ignore_errors: yes
+
+    - name: Set VM IP fact
+      set_fact:
+        vm_ip: "{{ vm_info.data.ips[0].ip | regex_replace('/.*','') if vm_info.data.ips is defined else 'DHCP_UNKNOWN' }}"
 
     - name: Add new VM to inventory
       add_host:
         name: "{{ vm_name }}"
-        ansible_host: "{{ ansible_host | default('DHCP_UNKNOWN') }}"
+        ansible_host: "{{ vm_ip }}"
         ansible_user: ansible
         ansible_ssh_private_key_file: ~/.ssh/ansible
         groups: newly_created
+
+    - name: Wait for SSH to become available
+      wait_for_connection:
+        host: "{{ vm_ip }}"
+        timeout: 300
