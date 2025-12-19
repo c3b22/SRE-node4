@@ -9,7 +9,7 @@
     proxmox_api_password: int53104
 
   tasks:
-    - name: Clone VM from template 7002
+    - name: Clone VM from template
       community.proxmox.proxmox_kvm:
         api_user: "{{ proxmox_api_user }}"
         api_password: "{{ proxmox_api_password }}"
@@ -34,39 +34,16 @@
         vmid: "{{ vm_create.vmid }}"
         state: started
 
-    - name: Wait VM boot
-      pause:
-        seconds: 30
-
-    - name: Wait for VM IP via Proxmox guest agent
-      community.proxmox.proxmox_kvm:
-        api_user: "{{ proxmox_api_user }}"
-        api_password: "{{ proxmox_api_password }}"
-        api_host: "{{ proxmox_api_host }}"
-        vmid: "{{ vm_create.vmid }}"
-        state: current
-      register: vm_info
-      retries: 10
-      delay: 15
-      until: vm_info.agent_interfaces is defined and vm_info.agent_interfaces | length > 0
-
-    - name: Get VM guest agent info
-      community.proxmox.proxmox_kvm:
-        api_user: "{{ proxmox_api_user }}"
-        api_password: "{{ proxmox_api_password }}"
-        api_host: "{{ proxmox_api_host }}"
-        vmid: "{{ vm_create.vmid }}"
-        state: info
-      register: vm_info
-
-    - name: Show VM info
-      debug:
-        var: vm_info
+    - name: Wait for SSH to become available
+      wait_for_connection:
+        timeout: 300
+        sleep: 10
+      delegate_to: "{{ vm_name }}"
 
     - name: Add new VM to inventory
       add_host:
-        name: "{{ vm_info.data.name }}"
-        ansible_host: "{{ vm_info.data.ips[0].ip | regex_replace('/.*','') }}"
+        name: "{{ vm_name }}"
+        ansible_host: "{{ hostvars['localhost']['vm_create'].vmid | lookup('community.general.proxmox_vm', 'get_ip') | default('DHCP_UNKNOWN') }}"
         ansible_user: ansible
         ansible_ssh_private_key_file: ~/.ssh/ansible
         groups: newly_created
