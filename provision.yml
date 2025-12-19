@@ -73,6 +73,14 @@
         msg: "Cannot determine VM IP via guest agent, set static IP or check qemu-guest-agent"
       when: vm_ip == ""
 
+    - name: Ensure sysadmin user exists
+      ansible.builtin.user:
+        name: sysadmin
+        shell: /bin/bash
+        state: present
+        create_home: yes
+      delegate_to: "{{ vm_ip | trim}}"
+
     - name: Add SSH public key for sysadmin user
       ansible.builtin.authorized_key:
         user: sysadmin
