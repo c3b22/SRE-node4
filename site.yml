@@ -15,7 +15,7 @@
         api_user: "{{ proxmox_api_user }}"
         api_password: "{{ proxmox_api_password }}"
         api_host: "{{ proxmox_api_host }}"
-        clone: "{{ vm_template }}"
+        clone: 7001
         name: "{{ vm_name }}"
         node: "{{ proxmox_node }}"
         ciuser: ansible

@@ -45,7 +45,7 @@
   git:
     repo: https://github.com/GkG0139/int531-monitoring-tools.git
     dest: /home/ansible/int531-monitoring-tools
-    version: fixNetwork2
+    version: main
     update: yes
 
 - name: Make sure a service unit is running
