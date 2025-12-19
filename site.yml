@@ -9,7 +9,6 @@
     proxmox_api_user: root@pam
     proxmox_api_password: int53104 
     proxmox_storage: local-lvm
-    vm_target_ip: 10.13.104.61 
 
   tasks:
     - name: Ping my hosts
@@ -93,18 +92,6 @@
         name: "{{ vm_name }}"
         state: current
       register: vm_info
-
-    - name: Add VM to inventory dynamically
-      ansible.builtin.add_host:
-        name: monitoring_vm
-        ansible_host: "{{ vm_info.ipconfig.ip }}"
-        groups: monitoring
-    
-    - name: Add VM to inventory dynamically
-      ansible.builtin.add_host:
-        name: app_vm
-        ansible_host: "{{ vm_info.ipconfig.ip }}"
-        groups: app
 
     - name: Remove old SSH host key
       ansible.builtin.known_hosts:
