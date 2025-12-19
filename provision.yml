@@ -43,7 +43,7 @@
     - name: Add new VM to inventory
       add_host:
         name: "{{ vm_name }}"
-        ansible_host: "{{ hostvars['localhost']['vm_create'].vmid | lookup('community.general.proxmox_vm', 'get_ip') | default('DHCP_UNKNOWN') }}"
+        ansible_host: "{{ ansible_host | default('DHCP_UNKNOWN') }}"
         ansible_user: ansible
         ansible_ssh_private_key_file: ~/.ssh/ansible
         groups: newly_created
