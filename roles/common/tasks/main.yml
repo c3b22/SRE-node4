@@ -11,6 +11,18 @@
   args:
     executable: /bin/bash
 
+- name: Install qemu guest agent
+  apt:
+    name: qemu-guest-agent
+    state: present
+    update_cache: yes
+
+- name: Enable and start qemu guest agent
+  systemd:
+    name: qemu-guest-agent
+    enabled: true
+    state: started
+
 - name: Install Docker Engine (apt version)
   apt:
     name: docker.io
