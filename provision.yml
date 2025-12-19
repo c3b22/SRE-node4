@@ -2,7 +2,7 @@
   hosts: localhost
   connection: local
   vars:
-    vm_name: ansibleVm
+    vm_name: "ansibleVm-{{ vm_create.vmid | default('NEW') }}"
     proxmox_node: int531-04
     proxmox_api_host: 10.13.104.214
     proxmox_api_user: root@pam
@@ -40,19 +40,10 @@
         sleep: 10
       delegate_to: "{{ vm_name }}"
 
-    - name: Get VM IP from Proxmox guest agent
-      command: qm agent {{ vm_create.vmid }} network-get-interfaces
-      register: vm_network
-      ignore_errors: true
-
-    - name: Parse IP from JSON
-      set_fact:
-        vm_ip: "{{ (vm_network.stdout | from_json).result[0].ip_addresses[0].ip_address | default('DHCP_UNKNOWN') }}"
-
     - name: Add host to inventory
       add_host:
         name: "{{ vm_name }}"
-        ansible_host: "{{ vm_ip }}"
+        ansible_host: "{{ vm_name }}" 
         ansible_user: ansible
         ansible_ssh_private_key_file: ~/.ssh/ansible
         groups: newly_created
