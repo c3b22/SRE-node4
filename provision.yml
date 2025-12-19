@@ -61,11 +61,11 @@
         msg: "Cannot determine VM IP via guest agent, set static IP or check qemu-guest-agent"
       when: vm_ip == ""
 
-    - name: Wait for SSH port 22
-      wait_for:
+    - name: Wait for SSH to become available
+      wait_for_connection:
         host: "{{ vm_ip }}"
-        port: 22
         timeout: 300
+        delay: 10
 
     - name: Add host to inventory
       add_host:
