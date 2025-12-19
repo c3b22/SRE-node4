@@ -8,6 +8,3 @@ want_facts: true
 
 compose:
   ansible_host: proxmox_net0_ip
-
-groups:
-  monitoring: "status == 'running'"
