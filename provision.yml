@@ -72,6 +72,7 @@
     - name: Wait for SSH to become available 
       wait_for_connection: 
         timeout: 300 
+        port: 22
         delegate_to: "{{ vm_ip | trim }}"
 
     - name: Ensure sysadmin user exists
