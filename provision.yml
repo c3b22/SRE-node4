@@ -18,7 +18,7 @@
         clone: "ubuntu-cloud-template-v3"
         name: "ansibleVm-{{ vm_create.vmid | default('NEW') }}"
         ciuser: ansible
-        cipassword: ""
+        cipassword: "int53104"
         sshkeys: "{{ lookup('file', '~/.ssh/ansible.pub') }}"
         ipconfig:
           ipconfig0: "ip=dhcp"
