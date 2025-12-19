@@ -53,10 +53,6 @@
       until: vm_network.stdout != ""
       ignore_errors: yes
 
-    - name: Show raw guest agent output
-      debug:
-        var: vm_network.stdout
-
     - name: Parse VM IP from JSON
       set_fact:
         vm_ip: >-
@@ -73,29 +69,50 @@
         msg: "Cannot determine VM IP via guest agent, set static IP or check qemu-guest-agent"
       when: vm_ip == ""
 
+    - name: Wait for SSH to become available
+      wait_for:
+        host: "{{ vm_ip }}"
+        port: 22
+        state: started
+        timeout: 300
+
     - name: Ensure sysadmin user exists
       ansible.builtin.user:
         name: sysadmin
         shell: /bin/bash
         state: present
         create_home: yes
-      delegate_to: "{{ vm_ip | trim}}"
+      delegate_to: "{{ vm_ip | trim }}"
+
+    - name: Create .ssh folder for sysadmin
+      ansible.builtin.file:
+        path: /home/sysadmin/.ssh
+        state: directory
+        owner: sysadmin
+        group: sysadmin
+        mode: 0700
+      delegate_to: "{{ vm_ip | trim }}"
 
     - name: Add SSH public key for sysadmin user
-      ansible.builtin.authorized_key:
-        user: sysadmin
-        key: "{{ lookup('file', '~/.ssh/ansible.pub') }}"
+      ansible.builtin.copy:
+        content: "{{ lookup('file', '~/.ssh/ansible.pub') }}"
+        dest: /home/sysadmin/.ssh/authorized_keys
+        owner: sysadmin
+        group: sysadmin
+        mode: 0600
+      delegate_to: "{{ vm_ip | trim }}"
+
+    - name: Restart SSH service on VM
+      ansible.builtin.service:
+        name: ssh
+        state: restarted
+      become: true
       delegate_to: "{{ vm_ip | trim }}"
 
     - name: Add host to inventory
       add_host:
         name: "{{ vm_ip | trim }}"
-        ansible_host: "{{ vm_ip | trim }}"
+        ansible_host: "{{ vm_ip | trim}}"
         ansible_user: sysadmin
         ansible_ssh_private_key_file: /root/.ssh/ansible
         groups: newly_created
-
-    - name: Wait for SSH to become available
-      wait_for_connection:
-        timeout: 300
-      delegate_to: "{{ vm_ip | trim }}"
