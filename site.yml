@@ -34,22 +34,14 @@
         vmid: "{{ vm_create.vmid }}"
         state: started
 
-    - name: Get Proxmox ticket
-      uri:
-        url: "https://{{ proxmox_api_host }}:8006/api2/json/access/ticket"
-        method: POST
-        body: "username={{ proxmox_api_user }}&password={{ proxmox_api_password }}"
-        validate_certs: false
-      register: ticket_info
-
     - name: Wait for VM to get IP
       uri:
         url: "https://{{ proxmox_api_host }}:8006/api2/json/nodes/{{ proxmox_node }}/qemu/{{ vm_create.vmid }}/agent/network-get-interfaces"
         method: POST
-        headers:
-          Cookie: "PVEAuthCookie={{ ticket_info.json.data.ticket }}"
-          X-CSRFPreventionToken: "{{ ticket_info.json.data.CSRFPreventionToken }}"
+        user: "{{ proxmox_api_user }}"
+        password: "{{ proxmox_api_password }}"
         validate_certs: false
+        force_basic_auth: true
       register: agent_info
       ignore_errors: true
       until: (agent_info.status | default(0) == 200) and (agent_info.json.result | selectattr('name', 'equalto', 'eth0') | map(attribute='ip-addresses') | flatten | selectattr('type', 'equalto', 'ipv4') | map(attribute='ip-address') | length > 0)
