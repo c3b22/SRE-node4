@@ -50,7 +50,8 @@
       meta: refresh_inventory
 
 - name: Configure VM
-  hosts: ansibleVm
+  hosts: proxmox_all_running
+  remote_user: ansible
   become: true
   tasks:
     - wait_for_connection:
