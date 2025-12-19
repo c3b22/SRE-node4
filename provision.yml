@@ -71,7 +71,7 @@
 
     - name: Wait VM boot
       pause:
-        seconds: 60
+        seconds: 180
 
     - name: Ensure sysadmin user exists
       ansible.builtin.user:
