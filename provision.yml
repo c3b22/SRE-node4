@@ -45,15 +45,16 @@
       set_fact:
         vm_ip: "{{ (vm_network.stdout | from_json).result[0]['ip-addresses'][0]['ip-address'] | default('DHCP_UNKNOWN') }}"
 
-    - name: Wait for SSH to become available
-      wait_for_connection:
+    - name: Wait for SSH port 22
+      wait_for:
         host: "{{ vm_ip }}"
+        port: 22
         timeout: 300
 
     - name: Add host to inventory
       add_host:
         name: "ansibleVm-{{ vm_create.vmid }}"
-        ansible_host: "{{ vm_ip }}"    # เอา IP จริงของ VM
+        ansible_host: "{{ vm_ip }}"
         ansible_user: ansible
         ansible_ssh_private_key_file: ~/.ssh/ansible
         groups: newly_created
