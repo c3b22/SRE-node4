@@ -9,7 +9,7 @@
     proxmox_api_password: int53104
 
   tasks:
-    - name: Clone VM from template 7001
+    - name: Clone VM from template 7002
       community.proxmox.proxmox_kvm:
         api_user: "{{ proxmox_api_user }}"
         api_password: "{{ proxmox_api_password }}"
@@ -22,6 +22,7 @@
         ipconfig:
           ipconfig0: "ip=dhcp"
         agent: 1
+        timeout: 600
       register: vm_create
 
     - name: Start VM
