@@ -17,7 +17,7 @@
         node: "{{ proxmox_node }}"
         clone: "ubuntu-cloud-template-v3"
         name: "ansibleVm-{{ vm_create.vmid | default('NEW') }}"
-        ciuser: ansible
+        ciuser: sysadmin
         cipassword: "int53104"
         sshkeys: "{{ lookup('file', '~/.ssh/ansible.pub') }}"
         ipconfig:
@@ -73,25 +73,17 @@
         msg: "Cannot determine VM IP via guest agent, set static IP or check qemu-guest-agent"
       when: vm_ip == ""
 
-    - name: Ensure ansible user exists
-      ansible.builtin.user:
-        name: ansible
-        shell: /bin/bash
-        state: present
-        create_home: yes
-      delegate_to: "{{ vm_ip }}"
-
-    - name: Add SSH public key for ansible user
+    - name: Add SSH public key for sysadmin user
       ansible.builtin.authorized_key:
-        user: ansible
+        user: sysadmin
         key: "{{ lookup('file', '~/.ssh/ansible.pub') }}"
-      delegate_to: "{{ vm_ip }}"
+      delegate_to: "{{ vm_ip | trim }}"
 
     - name: Add host to inventory
       add_host:
         name: "{{ vm_ip | trim }}"
         ansible_host: "{{ vm_ip | trim }}"
-        ansible_user: ansible
+        ansible_user: sysadmin
         ansible_ssh_private_key_file: /root/.ssh/ansible
         groups: newly_created
 
