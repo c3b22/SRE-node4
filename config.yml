@@ -1,0 +1,14 @@
+- name: Configure VM
+  hosts: proxmox_all_running
+  remote_user: ansible
+  become: true
+  tasks:
+    - wait_for_connection:
+        timeout: 300
+
+    - include_role:
+        name: "{{ item }}"
+      loop:
+        - common
+        - monitoring
+        - app

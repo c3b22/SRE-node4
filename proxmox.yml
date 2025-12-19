@@ -1,5 +1,4 @@
 plugin: community.proxmox.proxmox
-
 url: https://10.13.104.214:8006
 user: root@pam
 password: int53104
@@ -10,9 +9,9 @@ want_facts: true
 compose:
   ansible_host: >
     proxmox_agent_interfaces
-    | selectattr('name', 'equalto', 'eth0')
+    | selectattr('name','equalto','eth0')
     | map(attribute='ip-addresses')
     | first
-    | selectattr('ip-address', 'match', '^10\.')
+    | selectattr('ip-address','match','^10\.')
     | map(attribute='ip-address')
     | first
