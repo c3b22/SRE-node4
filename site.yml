@@ -41,13 +41,13 @@
         vmid: "{{ vm_create.vmid }}"
         state: current
       register: vm_status
-      until: vm_status.proxmox_agent_interfaces | length > 0 and vm_status.proxmox_agent_interfaces[0]['ip-addresses'] | length > 0
+      until: hostvars['localhost']['proxmox_agent_interfaces'] | length > 0 and hostvars['localhost']['proxmox_agent_interfaces'][0]['ip-addresses'] | length > 0
       retries: 30
       delay: 10
 
     - name: Set VM IP fact
       set_fact:
-        vm_ip: "{{ vm_status.proxmox_agent_interfaces[0]['ip-addresses'][0] }}"
+        vm_ip: "{{ hostvars['localhost']['proxmox_agent_interfaces'][0]['ip-addresses'][0] }}"
 
 - name: Configure VM with Ansible roles
   hosts: localhost
