@@ -25,15 +25,8 @@
         timeout: 600
       register: vm_create
 
-    - name: Rename VM to include real vmid
-      community.proxmox.proxmox_kvm:
-        api_user: "{{ proxmox_api_user }}"
-        api_password: "{{ proxmox_api_password }}"
-        api_host: "{{ proxmox_api_host }}"
-        node: "{{ proxmox_node }}"
-        vmid: "{{ vm_create.vmid }}"
-        name: "ansibleVm-{{ vm_create.vmid }}"
-        state: present
+    - name: Rename VM using qm set
+      command: qm set {{ vm_create.vmid }} --name ansibleVm-{{ vm_create.vmid }}
 
     - name: Start VM
       community.proxmox.proxmox_kvm:
