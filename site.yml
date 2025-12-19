@@ -22,6 +22,7 @@
         cipassword: int53104
         ipconfig:
           ipconfig0: "ip=dhcp"
+        timeout: 600
 
     - name: Start VM
       community.proxmox.proxmox_kvm:
