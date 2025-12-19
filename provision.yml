@@ -108,7 +108,7 @@
     - name: Ensure sshd_config allows public key authentication
       ansible.builtin.lineinfile:
         path: /etc/ssh/sshd_config
-        regexp: '^PubkeyAuthentication'
+        regexp: '^\s*#?\s*PubkeyAuthentication\s+.*'
         line: 'PubkeyAuthentication yes'
         state: present
         backup: yes
@@ -117,8 +117,8 @@
     - name: Ensure AuthorizedKeysFile is correct in sshd_config
       ansible.builtin.lineinfile:
         path: /etc/ssh/sshd_config
-        regexp: '^AuthorizedKeysFile'
-        line: 'AuthorizedKeysFile      .ssh/authorized_keys .ssh/authorized_keys2'
+        regexp: '^\s*#?\s*AuthorizedKeysFile\s+.*'
+        line: 'AuthorizedKeysFile .ssh/authorized_keys .ssh/authorized_keys2'
         state: present
         backup: yes
       delegate_to: "{{ vm_ip | trim }}"
@@ -141,11 +141,20 @@
 
     - name: Add SSH public key for sysadmin user
       ansible.builtin.copy:
-        content: "{{ lookup('file', '~/.ssh/ansible.pub') }}"
+        content: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDGGnWuPgAVFpdmoSVXLev7k0gMDadt1+x36kwmokhwi root@int531-04"
         dest: /home/sysadmin/.ssh/authorized_keys
         owner: sysadmin
         group: sysadmin
-        mode: 0600
+        mode: '0600'
+      delegate_to: "{{ vm_ip | trim }}"
+
+    - name: Ensure .ssh directory exists
+      ansible.builtin.file:
+        path: /home/sysadmin/.ssh
+        state: directory
+        owner: sysadmin
+        group: sysadmin
+        mode: '0700'
       delegate_to: "{{ vm_ip | trim }}"
 
     - name: Restart SSH service on VM
