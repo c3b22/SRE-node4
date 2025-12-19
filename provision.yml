@@ -36,14 +36,24 @@
     - name: Get VM IP from guest agent
       command: qm agent {{ vm_create.vmid }} network-get-interfaces
       register: vm_network
-      retries: 10
+      retries: 20
       delay: 15
       until: vm_network.stdout != ""
       ignore_errors: yes
 
     - name: Parse VM IP from JSON
       set_fact:
-        vm_ip: "{{ (vm_network.stdout | from_json).result[0]['ip-addresses'][0]['ip-address'] | default('DHCP_UNKNOWN') }}"
+        vm_ip: >-
+          {% if vm_network.stdout != "" %}
+            {{ (vm_network.stdout | from_json).result[0]['ip-addresses'][0]['ip-address'] }}
+          {% else %}
+            ""
+          {% endif %}
+
+    - name: Fail if no IP found
+      fail:
+        msg: "Cannot determine VM IP via guest agent, set static IP or check qemu-guest-agent"
+      when: vm_ip == ""
 
     - name: Wait for SSH port 22
       wait_for:
