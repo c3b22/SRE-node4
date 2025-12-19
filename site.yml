@@ -46,10 +46,6 @@
         state: current
       register: vm_info
 
-    - name: Set VM IP
-      set_fact:
-        vm_ip: "{{ vm_info.proxmox_ipconfig0.ip.split('/')[0] }}"
-
     - name: Add VM to inventory
       add_host:
         name: "{{ vm_name }}"
