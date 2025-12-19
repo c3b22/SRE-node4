@@ -23,14 +23,14 @@
         ipconfig:
           ipconfig0: "ip=dhcp"
         timeout: 600
+      register: vm_create
 
     - name: Start VM
       community.proxmox.proxmox_kvm:
         api_user: "{{ proxmox_api_user }}"
         api_password: "{{ proxmox_api_password }}"
         api_host: "{{ proxmox_api_host }}"
-        name: "{{ vm_name }}"
-        node: "{{ proxmox_node }}"
+        vmid: "{{ vm_create.vmid }}"
         state: started
 
 - name: Configure VM with Ansible roles
