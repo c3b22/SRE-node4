@@ -1,29 +1,27 @@
-- name: Set up virtual machine on Proxmox
+- name: Create VM on Proxmox
   hosts: localhost
   connection: local
   vars:
     vm_name: ansibleVm
-    vm_template: ubuntu-cloud-template-v2
     proxmox_node: int531-04
     proxmox_api_host: 10.13.104.214
     proxmox_api_user: root@pam
     proxmox_api_password: int53104
 
   tasks:
-    - name: Create VM from template (Cloud-Init + DHCP)
+    - name: Clone VM from template 7001
       community.proxmox.proxmox_kvm:
         api_user: "{{ proxmox_api_user }}"
         api_password: "{{ proxmox_api_password }}"
         api_host: "{{ proxmox_api_host }}"
+        node: "{{ proxmox_node }}"
         clone: 7001
         name: "{{ vm_name }}"
-        node: "{{ proxmox_node }}"
         ciuser: ansible
         cipassword: int53104
         ipconfig:
           ipconfig0: "ip=dhcp"
         agent: 1
-        timeout: 600
       register: vm_create
 
     - name: Start VM
@@ -34,16 +32,32 @@
         vmid: "{{ vm_create.vmid }}"
         state: started
 
-    - name: Wait for VM to boot
+    - name: Wait VM boot
       pause:
         seconds: 30
 
-    - name: Refresh inventory
-      meta: refresh_inventory
+    - name: Get VM info (Cloud-init IP)
+      community.proxmox.proxmox_kvm:
+        api_user: "{{ proxmox_api_user }}"
+        api_password: "{{ proxmox_api_password }}"
+        api_host: "{{ proxmox_api_host }}"
+        vmid: "{{ vm_create.vmid }}"
+        state: current
+      register: vm_info
 
+    - name: Set VM IP
+      set_fact:
+        vm_ip: "{{ vm_info.proxmox_ipconfig0.ip.split('/')[0] }}"
+
+    - name: Add VM to inventory
+      add_host:
+        name: "{{ vm_name }}"
+        ansible_host: "{{ vm_ip }}"
+        ansible_user: ansible
+        ansible_ssh_private_key_file: "{{ playbook_dir }}/privatekey"
+        
 - name: Configure VM
   hosts: ansibleVm
-  remote_user: ansible
   become: true
   tasks:
     - wait_for_connection:
