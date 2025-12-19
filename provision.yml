@@ -51,10 +51,10 @@
       debug:
         var: vm_info
 
-- name: Add new VM to inventory
-  add_host:
-    name: "{{ vm_info.data.name }}"
-    ansible_host: "{{ vm_info.data.ips[0].ip | regex_replace('/.*','') }}"
-    ansible_user: ansible
-    ansible_ssh_private_key_file: ~/.ssh/ansible
-    groups: newly_created
+    - name: Add new VM to inventory
+      add_host:
+        name: "{{ vm_info.data.name }}"
+        ansible_host: "{{ vm_info.data.ips[0].ip | regex_replace('/.*','') }}"
+        ansible_user: ansible
+        ansible_ssh_private_key_file: ~/.ssh/ansible
+        groups: newly_created
