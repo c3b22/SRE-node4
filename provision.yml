@@ -1,6 +1,7 @@
 - name: Create VM on Proxmox
   hosts: localhost
   connection: local
+  gather_facts: false
   vars:
     proxmox_node: int531-04
     proxmox_api_host: 10.13.104.214
@@ -17,7 +18,7 @@
         clone: "ubuntu-cloud-template-v3"
         name: "ansibleVm-{{ vm_create.vmid | default('NEW') }}"
         ciuser: ansible
-        cipassword: int53104
+        cipassword: ""        
         sshkeys: "{{ lookup('file', '~/.ssh/ansible.pub') }}"
         ipconfig:
           ipconfig0: "ip=dhcp"
@@ -35,6 +36,14 @@
         api_host: "{{ proxmox_api_host }}"
         vmid: "{{ vm_create.vmid }}"
         state: started
+
+    - name: Wait for VM guest agent to be ready
+      shell: |
+        until qm agent {{ vm_create.vmid }} ping 2>/dev/null; do sleep 5; done
+      retries: 20
+      delay: 15
+      register: agent_ready
+      ignore_errors: yes
 
     - name: Get VM IP from guest agent
       command: qm agent {{ vm_create.vmid }} network-get-interfaces
@@ -54,7 +63,7 @@
           {% set data = vm_network.stdout | from_json %}
           {% set eth0 = data | selectattr("name", "equalto", "eth0") | list %}
           {% if eth0 | length > 0 and eth0[0]['ip-addresses'] | length > 0 %}
-            {{ eth0[0]['ip-addresses'][0]['ip-address'] | trim }}
+            {{ eth0[0]['ip-addresses'][0]['ip-address'] | trim | replace('\r','') }}
           {% else %}
             ""
           {% endif %}
@@ -67,12 +76,13 @@
     - name: Add host to inventory
       add_host:
         name: "{{ vm_ip | trim }}"
-        ansible_host: "{{ vm_ip | trim }}" 
+        ansible_host: "{{ vm_ip | trim }}"
         ansible_user: ansible
         ansible_ssh_private_key_file: ~/.ssh/ansible
         groups: newly_created
 
     - name: Wait for SSH to become available
       wait_for_connection:
+        delay: 10
         timeout: 300
-      delegate_to: "{{ vm_ip }}"
+      delegate_to: "{{ vm_ip | trim}}"
