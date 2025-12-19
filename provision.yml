@@ -51,7 +51,7 @@
           {% set data = vm_network.stdout | from_json %}
           {% set eth0 = data | selectattr("name", "equalto", "eth0") | list %}
           {% if eth0 | length > 0 and eth0[0]['ip-addresses'] | length > 0 %}
-            {{ eth0[0]['ip-addresses'][0]['ip-address'] }}
+            {{ eth0[0]['ip-addresses'][0]['ip-address'] | trim }}
           {% else %}
             ""
           {% endif %}
