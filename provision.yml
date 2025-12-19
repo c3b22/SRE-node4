@@ -38,13 +38,25 @@
       pause:
         seconds: 30
 
-    - name: Get VM info (Cloud-init IP)
+    - name: Wait for VM IP via Proxmox guest agent
       community.proxmox.proxmox_kvm:
         api_user: "{{ proxmox_api_user }}"
         api_password: "{{ proxmox_api_password }}"
         api_host: "{{ proxmox_api_host }}"
         vmid: "{{ vm_create.vmid }}"
-        state: current
+        state: info
+      register: vm_info
+      retries: 10
+      delay: 15
+      until: vm_info.agent_interfaces is defined and vm_info.agent_interfaces | length > 0
+
+    - name: Get VM guest agent info
+      community.proxmox.proxmox_kvm:
+        api_user: "{{ proxmox_api_user }}"
+        api_password: "{{ proxmox_api_password }}"
+        api_host: "{{ proxmox_api_host }}"
+        vmid: "{{ vm_create.vmid }}"
+        state: info
       register: vm_info
 
     - name: Show VM info
