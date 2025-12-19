@@ -63,9 +63,9 @@
 
     - name: Wait for SSH to become available
       wait_for_connection:
-        host: "{{ vm_ip }}"
         timeout: 300
         delay: 10
+      delegate_to: "{{ vm_ip }}"
 
     - name: Add host to inventory
       add_host:
