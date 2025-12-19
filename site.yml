@@ -48,23 +48,23 @@
         state: agent
       register: vm_agent
 
-- name: Debug vm_agent
-  debug:
-    var: vm_agent
+    - name: Debug vm_agent
+      debug:
+        var: vm_agent
 
-- name: Set VM IP fact
-  set_fact:
-    vm_ip: >-
-      {{
-        vm_agent.proxmox_agent_interfaces
-        | selectattr('ip-addresses', 'defined')
-        | map(attribute='ip-addresses')
-        | flatten
-        | selectattr('ip-address-type', 'equalto', 'ipv4')
-        | rejectattr('ip-address', 'search', '^127\\.')
-        | map(attribute='ip-address')
-        | first
-      }}
+    - name: Set VM IP fact
+      set_fact:
+        vm_ip: >-
+          {{
+            vm_agent.proxmox_agent_interfaces
+            | selectattr('ip-addresses', 'defined')
+            | map(attribute='ip-addresses')
+            | flatten
+            | selectattr('ip-address-type', 'equalto', 'ipv4')
+            | rejectattr('ip-address', 'search', '^127\\.')
+            | map(attribute='ip-address')
+            | first
+          }}
 
 - name: Configure VM with Ansible roles
   hosts: localhost
