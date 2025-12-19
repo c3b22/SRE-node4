@@ -61,7 +61,6 @@
           wait_for_connection:
             delay: 10
             timeout: 300
-          delegate_to: "{{ vm_ip }}"
         - name: Include roles
           include_role:
             name: "{{ item }}"
@@ -69,7 +68,8 @@
             - common
             - monitor
             - app
-          delegate_to: "{{ vm_ip }}"
+      delegate_to: "{{ vm_ip }}"
+      become: true
       rescue:
         - name: Delete VM on failure
           community.proxmox.proxmox_kvm:
