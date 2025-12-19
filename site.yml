@@ -40,7 +40,7 @@
 
     - name: Refresh inventory
       meta: refresh_inventory
-      
+
 - name: Configure VM
   hosts: ansibleVm
   remote_user: ansible
@@ -50,7 +50,8 @@
         timeout: 300
 
     - include_role:
-        name: 
-          - common
-          - monitoring
-          - app
+        name: "{{ item }}"
+      loop:
+        - common
+        - monitoring
+        - app
