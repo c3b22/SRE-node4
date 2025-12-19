@@ -38,6 +38,9 @@
       pause:
         seconds: 30
 
+    - name: Refresh inventory
+      meta: refresh_inventory
+      
 - name: Configure VM
   hosts: ansibleVm
   remote_user: ansible
