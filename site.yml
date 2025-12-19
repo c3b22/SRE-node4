@@ -22,6 +22,7 @@
         cipassword: int53104
         ipconfig:
           ipconfig0: "ip=dhcp"
+        agent: 1
         timeout: 600
       register: vm_create
 
@@ -36,6 +37,7 @@
     - name: Wait for VM to get IP
       uri:
         url: "https://{{ proxmox_api_host }}:8006/api2/json/nodes/{{ proxmox_node }}/qemu/{{ vm_create.vmid }}/agent/network-get-interfaces"
+        method: POST
         user: "{{ proxmox_api_user }}"
         password: "{{ proxmox_api_password }}"
         validate_certs: false
