@@ -1,9 +1,11 @@
-plugin: community.general.proxmox
-url: https://127.0.0.1:8006
-user: root@pam
-password: "{{ proxmox_password }}"
+plugin: community.proxmox.proxmox
+
+api_host: 10.13.104.214
+api_user: root@pam
+api_token_id: ansible
+api_token_secret: YOUR_TOKEN
 validate_certs: false
 
 want_facts: true
 compose:
-  ansible_host: ip_address
+  ansible_host: proxmox_agent_interfaces[0].ip-addresses[0]

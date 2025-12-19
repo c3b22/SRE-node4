@@ -46,18 +46,23 @@
         state: absent
       when: vm_info.vmid is defined
 
-    - name: Create VM
+    - name: Create VM from template
       community.proxmox.proxmox_kvm:
         api_user: "{{ proxmox_api_user }}"
-        api_password: "{{ proxmox_api_password }}"
+        api_token_id: "{{ proxmox_api_token_id }}"
+        api_token_secret: "{{ proxmox_api_token_secret }}"
         api_host: "{{ proxmox_api_host }}"
-        clone: "{{ vm_template }}"
-        name: "{{ vm_name }}"
-        node: "{{ proxmox_node }}"
-        storage: local-lvm
-        format: qcow2
-        timeout: 100
-      register: new_vm
+        clone: ubuntu-cloud-template
+        name: ansibleVm
+        node: int531-04
+        ciuser: ansible
+        cipassword: int53104
+        sshkeys: "{{ lookup('file', '~/.ssh/id_ed25519.pub') }}"
+        ipconfig:
+          ipconfig0: "ip=dhcp"
+        cores: 2
+        memory: 2048
+        update: true
 
     - name: Update VM
       community.proxmox.proxmox_kvm:
@@ -97,6 +102,7 @@
       ansible.builtin.known_hosts:
         name: "{{ vm_info }}"
         state: absent
+
 
 - name: Configure VM with Ansible roles
   hosts: proxmox_all_running
