@@ -98,16 +98,6 @@
         name: "{{ vm_info }}"
         state: absent
 
-    - name: Wait for VM to be reachable via SSH
-      ansible.builtin.wait_for_connection:
-        delay: 10
-        timeout: 300
-      vars:
-        ansible_user: ansible
-        ansible_ssh_private_key_file: ./privatekey
-        ansible_ssh_common_args: "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
-      delegate_to: "{{ vm_info.ipconfig.ip }}"
-
 - name: Configure VM with Ansible roles
   hosts: monitoring
   become: true
