@@ -40,11 +40,25 @@
     ansible_user: ansible
     ansible_ssh_private_key_file: "{{ playbook_dir }}/privatekey"
   tasks:
-    - name: Wait for SSH to be available
-      wait_for_connection:
-        delay: 10
-        timeout: 300
-  roles:
-    - common
-    - monitor
-    - app
+    - block:
+        - name: Wait for SSH to be available
+          wait_for_connection:
+            delay: 10
+            timeout: 300
+        - name: Include roles
+          include_role:
+            name: "{{ item }}"
+          loop:
+            - common
+            - monitor
+            - app
+      rescue:
+        - name: Delete VM on failure
+          community.proxmox.proxmox_kvm:
+            api_user: root@pam
+            api_password: int53104
+            api_host: 10.13.104.214
+            vmid: "{{ proxmox_vmid }}"
+            state: absent
+          delegate_to: localhost
+          run_once: true
