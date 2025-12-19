@@ -71,8 +71,7 @@
 
     - name: Wait for SSH to become available
       wait_for:
-        host: "{{ vm_ip }}"
-        port: 22
+        host: "{{ vm_ip | trim }}"
         state: started
         timeout: 300
 
