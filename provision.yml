@@ -86,3 +86,17 @@
         delay: 10
         timeout: 300
       delegate_to: "{{ vm_ip | trim}}"
+
+    - name: Ensure ansible user exists
+      ansible.builtin.user:
+        name: ansible
+        shell: /bin/bash
+        state: present
+        create_home: yes
+      delegate_to: "{{ vm_ip }}"
+
+    - name: Add SSH public key for ansible user
+      ansible.builtin.authorized_key:
+        user: ansible
+        key: "{{ lookup('file', '~/.ssh/ansible.pub') }}"
+      delegate_to: "{{ vm_ip }}"
