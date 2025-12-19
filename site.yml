@@ -41,7 +41,6 @@
         node: "{{ proxmox_node }}"
         ciuser: ansible
         cipassword: int53104
-        sshkeys: "{{ lookup('file', '~/.ssh/id_ed25519.pub') }}"
         ipconfig:
           ipconfig0: "ip=dhcp"
         update: true
@@ -54,7 +53,7 @@
         name: "{{ vm_name }}"
         node: "{{ proxmox_node }}"
         state: started
-        
+
 - name: Configure VM with Ansible roles
   hosts: proxmox_all_running
   become: true

@@ -1,6 +1,6 @@
 plugin: community.proxmox.proxmox
 
-host: 10.13.104.214
+url: https://10.13.104.214:8006
 user: root@pam
 password: int53104
 validate_certs: false
