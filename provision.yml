@@ -33,22 +33,17 @@
         vmid: "{{ vm_create.vmid }}"
         state: started
 
-    - name: Wait for VM guest agent to provide IP
-      community.proxmox.proxmox_kvm:
-        api_user: "{{ proxmox_api_user }}"
-        api_password: "{{ proxmox_api_password }}"
-        api_host: "{{ proxmox_api_host }}"
-        vmid: "{{ vm_create.vmid }}"
-        state: info
-      register: vm_info
-      retries: 20
+    - name: Get VM IP from guest agent
+      command: qm agent {{ vm_create.vmid }} network-get-interfaces
+      register: vm_network
+      retries: 10
       delay: 15
-      until: vm_info.data.ips is defined and vm_info.data.ips | length > 0
+      until: vm_network.stdout != ""
       ignore_errors: yes
 
-    - name: Set VM IP fact
+    - name: Parse VM IP from JSON
       set_fact:
-        vm_ip: "{{ vm_info.data.ips[0].ip | regex_replace('/.*','') if vm_info.data.ips is defined else 'DHCP_UNKNOWN' }}"
+        vm_ip: "{{ (vm_network.stdout | from_json).result[0]['ip-addresses'][0]['ip-address'] | default('DHCP_UNKNOWN') }}"
 
     - name: Wait for SSH to become available
       wait_for_connection:
