@@ -15,7 +15,7 @@
         api_password: "{{ proxmox_api_password }}"
         api_host: "{{ proxmox_api_host }}"
         node: "{{ proxmox_node }}"
-        clone: 7001
+        clone: "ubuntu-cloud-template-v3"
         name: "{{ vm_name }}"
         ciuser: ansible
         cipassword: int53104
@@ -55,7 +55,7 @@
         ansible_host: "{{ vm_ip }}"
         ansible_user: ansible
         ansible_ssh_private_key_file: "{{ playbook_dir }}/privatekey"
-        
+
 - name: Configure VM
   hosts: ansibleVm
   become: true
