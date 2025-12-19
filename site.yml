@@ -43,7 +43,8 @@
         validate_certs: false
         force_basic_auth: true
       register: agent_info
-      until: agent_info.json.result | selectattr('name', 'equalto', 'eth0') | map(attribute='ip-addresses') | flatten | selectattr('type', 'equalto', 'ipv4') | map(attribute='ip-address') | length > 0
+      ignore_errors: true
+      until: (agent_info.status | default(0) == 200) and (agent_info.json.result | selectattr('name', 'equalto', 'eth0') | map(attribute='ip-addresses') | flatten | selectattr('type', 'equalto', 'ipv4') | map(attribute='ip-address') | length > 0)
       retries: 30
       delay: 10
 
