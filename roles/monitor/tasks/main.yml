@@ -47,32 +47,32 @@
     mode: '0755'
     remote_src: yes
 
-- name: Create systemd service file
-  copy:
-    dest: /etc/systemd/system/node_exporter.service
-    content: |
-      [Unit]
-      Description=Prometheus Node Exporter
-      After=network.target
+# - name: Create systemd service file
+#   copy:
+#     dest: /etc/systemd/system/node_exporter.service
+#     content: |
+#       [Unit]
+#       Description=Prometheus Node Exporter
+#       After=network.target
 
-      [Service]
-      User=node_exporter
-      Group=node_exporter
-      Type=simple
-      ExecStart=/usr/local/bin/node_exporter
+#       [Service]
+#       User=node_exporter
+#       Group=node_exporter
+#       Type=simple
+#       ExecStart=/usr/local/bin/node_exporter
 
-      [Install]
-      WantedBy=multi-user.target
+#       [Install]
+#       WantedBy=multi-user.target
 
-- name: Reload systemd
-  systemd:
-    daemon_reload: yes
+# - name: Reload systemd
+#   systemd:
+#     daemon_reload: yes
 
-- name: Enable and start node_exporter
-  systemd:
-    name: node_exporter
-    enabled: yes
-    state: started
+# - name: Enable and start node_exporter
+#   systemd:
+#     name: node_exporter
+#     enabled: yes
+#     state: started
 
 - name: Create docker app-network
   become: true
