@@ -93,7 +93,7 @@
     - nginx/nginx:latest
   register: pull_results
   retries: 5
-  delay: 10
+  delay: 60
   until: pull_results is succeeded
 
 - name: Docker compose up monitoring stack
