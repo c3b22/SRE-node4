@@ -76,7 +76,7 @@
 - name: Create docker app-network
   become: true
   docker_network:
-    name: int531-monitoring-tools_app-network
+    name: app-network
     state: present
 
 - name: Docker compose up monitoring stack
