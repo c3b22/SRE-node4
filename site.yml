@@ -3,7 +3,7 @@
   hosts: localhost
   vars:
     vm_name: ansibleVm
-    vm_template: ubuntu-cloud-template-v2
+    vm_template: check-template
     proxmox_node: int531-04 
     proxmox_api_host: 10.13.104.214 
     proxmox_api_user: root@pam
@@ -57,7 +57,7 @@
         node: "{{ proxmox_node }}"
         storage: local-lvm
         format: qcow2
-        timeout: 100
+        timeout: 600
       register: new_vm
 
     - name: Update VM
@@ -84,6 +84,11 @@
         node: "{{ proxmox_node }}"
         state: started
 
+    - name: Remove old SSH host key
+      ansible.builtin.known_hosts:
+        name: "{{ vm_target_ip }}"
+        state: absent
+
     - name: Wait for VM to be reachable via SSH
       ansible.builtin.wait_for_connection:
         delay: 10
@@ -91,48 +96,13 @@
       vars:
         ansible_user: ansible
         ansible_ssh_private_key_file: ./privatekey
-        ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
+        ansible_ssh_common_args: "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
       delegate_to: "{{ vm_target_ip }}"
 
-- name: Configure the new VM hostname
-  hosts: 10.13.104.61
-  gather_facts: yes
-  become: yes
-  vars:
-    ansible_host: 10.13.104.61
-    ansible_user: ansible
-    ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
-    ansible_ssh_private_key_file: "./privatekey"
-  tasks:
-
-    - name: Update apt cache
-      apt:
-        update_cache: yes
-
-    - name: Install Docker Engine (apt version)
-      apt:
-        name: docker.io
-        state: present
-
-    - name: Install Docker Compose v2
-      apt:
-        name: docker-compose-v2
-        state: present
-
-    - name: Install git
-      become: true
-      apt:
-        name: git
-        state: present
-        update_cache: yes
-
-    - name: Add 10.13.104.61 to known_hosts
-      known_hosts:
-        name: "10.13.104.61"
-        key: "{{ lookup('pipe', 'ssh-keyscan -H 10.13.104.61') }}"
-        path: "/root/.ssh/known_hosts"
-
-    - name: Make sure a service unit is running
-      ansible.builtin.systemd_service:
-        state: started
-        name: docker
+- name: Configure VM with Ansible roles
+  hosts: monitoring
+  become: true
+  roles:
+    - common
+    - monitor
+    - app

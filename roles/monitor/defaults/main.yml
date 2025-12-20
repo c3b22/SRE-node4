@@ -1,0 +1,5 @@
+node_exporter_version: "1.8.2"
+node_exporter_arch: "linux-amd64"
+node_exporter_url: "https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.{{ node_exporter_arch }}.tar.gz"
+monitoring_repo: "https://github.com/GkG0139/int531-monitoring-tools.git"
+monitoring_path: "/home/ansible/int531-monitoring-tools"
