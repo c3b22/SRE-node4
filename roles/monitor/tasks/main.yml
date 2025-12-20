@@ -30,6 +30,7 @@
     url: "{{ node_exporter_url }}"
     dest: /tmp/node_exporter.tar.gz
     mode: '0644'
+    timeout: 60
 
 - name: Extract node_exporter
   unarchive:
