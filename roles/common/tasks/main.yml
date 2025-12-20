@@ -15,11 +15,17 @@
   apt:
     name: docker.io
     state: present
+    update_cache: yes
+    force_apt_get: yes
+    install_recommends: no
 
-- name: Install Docker Compose v2
+- name: Install Docker Compose v2 
   apt:
     name: docker-compose-v2
     state: present
+    update_cache: yes
+    force_apt_get: yes
+    install_recommends: no
 
 - name: Install git
   become: true
