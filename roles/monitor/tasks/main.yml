@@ -90,7 +90,6 @@
     - prom/prometheus:latest
     - prom/alertmanager:latest
     - prom/mysqld-exporter:latest
-    - nginx:latest
   register: pull_results
   retries: 5
   delay: 60
