@@ -80,6 +80,22 @@
     name: app-network
     state: present
 
+- name: Pull monitoring images
+  docker_image:
+    name: "{{ item }}"
+    source: pull
+  loop:
+    - grafana/grafana:latest
+    - prom/node-exporter:latest
+    - prom/prometheus:latest
+    - prom/alertmanager:latest
+    - prom/mysqld-exporter:latest
+    - nginx/nginx:latest
+  register: pull_results
+  retries: 5
+  delay: 10
+  until: pull_results is succeeded
+
 - name: Docker compose up monitoring stack
   community.docker.docker_compose_v2:
     project_src: /home/ansible/int531-monitoring-tools

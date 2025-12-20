@@ -3,7 +3,7 @@
   hosts: localhost
   vars:
     vm_name: ansibleVm
-    vm_template: ubuntu-cloud-template-v2
+    vm_template: check-template
     proxmox_node: int531-04 
     proxmox_api_host: 10.13.104.214 
     proxmox_api_user: root@pam
