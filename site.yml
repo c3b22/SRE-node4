@@ -57,7 +57,7 @@
         node: "{{ proxmox_node }}"
         storage: local-lvm
         format: qcow2
-        timeout: 100
+        timeout: 600
       register: new_vm
 
     - name: Update VM
